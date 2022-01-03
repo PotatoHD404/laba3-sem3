@@ -8,7 +8,7 @@ using namespace std;
 
 
 int main() {
-    Graph<int> a(2, 1, false, false, true);
+    Graph<int> a(10, 20, false, false, true);
 
     cout << a.GraphvizPrint() << endl;
 //    SparseMatrix<size_t> a(100);
@@ -36,6 +36,7 @@ int main() {
 //    for (size_t i = 0; i < a.data.Count(); ++i) {
 //        a.data[i] = i;
 //    }
+
 //    a.Expand();
 //    cout << a << endl;
 //    cout << a.data << endl;

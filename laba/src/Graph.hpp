@@ -95,15 +95,11 @@ public:
             auto i = Random<size_t>(0, count - 1), j = Random<size_t>(0, count - 1);
 //            if(i!=j)
 //                cout << endl;
-            if (!nodes[i]->IsAdjacent(nodes[j])) {
+            if (!nodes[i]->IsAdjacent(nodes[j]) && ((!directed && i != j) || directed)) {
                 TWeight rnd = Random<TWeight>();
-                Edge *edge;
-                if (nodes[i]->IsAdjacent(nodes[j]))
-                    edge = nodes[j]->AddAdjacent(nodes[i]);
-                else
-                    edge = nodes[i]->AddAdjacent(nodes[j]);
+                Edge *edge = nodes[i]->AddAdjacent(nodes[j]);
                 edge->weight = rnd;
-                if (!directed && i!= j)
+                if (!directed)
                     nodes[j]->AddAdjacent(edge);
             } else {
                 --k;
@@ -113,8 +109,8 @@ public:
 
     string GraphvizPrint() {
         stringstream ss;
-        Set<Edge *> passed;
-        ss << (directed ? "digraph" : "graph") << '{' << endl;
+        LinkedList<Edge *> passed;
+        ss << (directed ? "digraph" : "graph") << " {" << endl;
         for (auto node: nodes) {
             ss << '"' << node << '"' << "[label=" << node->value;
             if (nodeWeighted)
@@ -124,7 +120,7 @@ public:
                 if (!passed.Contains(edge)) {
                     ss << '"' << node << '"' << (directed ? "->" : "--") << '"' << edge->GetAdjacent(node) << '"';
                     if (edgeWeighted)
-                        ss << "[label=\" " << edge->weight << " \"]";
+                        ss << "[label=\" " << edge->weight << "\"]";
                     ss << ';' << endl;
                     passed.Add(edge);
                 }
@@ -137,10 +133,10 @@ public:
     ~Graph() {
         for (auto node: nodes) {
             for (auto edge: node->edges) {
-                    LinkedList<Edge *> *edges = &edge->GetAdjacent(node)->edges;
-                    if (edges->Contains(edge) && edge->GetAdjacent(node) != node)
-                        edges->Remove(edge);
-                    delete edge;
+                LinkedList<Edge *> *edges = &edge->GetAdjacent(node)->edges;
+                if (edges->Contains(edge) && edge->GetAdjacent(node) != node)
+                    edges->Remove(edge);
+                delete edge;
             }
             delete node;
         }
