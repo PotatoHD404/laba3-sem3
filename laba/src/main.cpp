@@ -11,6 +11,34 @@ int main() {
     Graph<int> a(10, 20, false, false, true);
 
     cout << a.GraphvizPrint() << endl;
+//
+//    Set<size_t *> passed;
+//    for (size_t i = 0; i < 200; ++i) {
+//        passed.Add(new size_t{i});
+//    }
+//    passed.Add(new size_t{});
+////    for (auto el: passed) {
+//////        passed.Add(el);
+////        if (!passed.Contains(el))
+////            cout << passed.Contains(el) << endl;
+////    }
+//    int i = 0;
+//    size_t *a;
+//    for (auto el: passed) {
+//        if (i++ != 0) {
+//            cout << (a < el) << endl;
+//        }
+//        a = el;
+//    }
+////    passed.Add(12);
+////    passed.Add(16);
+////    passed.Add(0);
+////    passed.Add(8);
+////    passed.Add(13);
+////    passed.Add(34);
+//    cout << passed.Count() << endl;
+//    cout << passed << endl;
+
 //    SparseMatrix<size_t> a(100);
 //    SquareMatrix<size_t> a(3);
 //

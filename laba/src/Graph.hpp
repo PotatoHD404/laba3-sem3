@@ -109,7 +109,7 @@ public:
 
     string GraphvizPrint() {
         stringstream ss;
-        LinkedList<Edge *> passed;
+        Set<Edge *> passed;
         ss << (directed ? "digraph" : "graph") << " {" << endl;
         for (auto node: nodes) {
             ss << '"' << node << '"' << "[label=" << node->value;
@@ -127,6 +127,7 @@ public:
             }
         }
         ss << '}' << endl;
+//        ss << endl << passed.Count() << endl << passed << endl;
         return ss.str();
     }
 
