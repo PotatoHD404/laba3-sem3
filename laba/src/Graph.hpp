@@ -5,6 +5,10 @@
 #pragma once
 
 #include "Random.hpp"
+#include "ListSequence.hpp"
+#include "ArraySequence.hpp"
+#include "Set.hpp"
+#include "Dictionary.hpp"
 
 template<typename TValue, typename TWeight = TValue>
 class Graph {
@@ -107,20 +111,82 @@ public:
         }
     }
 
-    string GraphvizPrint() {
+    ListSequence<Node *const> Dijkstra(size_t a, size_t b) {
+        Set<Node *> passed;
+        Dictionary<Node *, Node *> parents;
+        nodeWeighted = true;
+        for (auto node: nodes) {
+            node->weight = std::numeric_limits<TWeight>::max();
+            parents.Add(node, nullptr);
+        }
+        Stack<Node *> next;
+        next.Push(nodes[a]);
+        nodes[a]->weight = 0;
+        while (!next.IsEmpty()) {
+            Node *current = next.Top();
+            for (Edge *edge: current->edges) {
+                Node *adj = edge->GetAdjacent(current);
+                TWeight newWeight = edge->weight + current->weight;
+                if (newWeight < adj->weight) {
+                    adj->weight = newWeight;
+                    next.Add(adj);
+                    parents[adj] = current;
+                }
+            }
+            passed.Add(next.Pop());
+        }
+        Node *current = nodes[b];
+        Node *start = nodes[a];
+        ListSequence<Node *const> res;
+        if (parents[current] != nullptr) {
+            do {
+                res.AddFirst(current);
+                current = parents[current];
+            } while (current != start);
+            res.AddFirst(start);
+        }
+        return res;
+    }
+
+    string GraphvizPrint(ListSequence<Node *const> path = {}) {
         stringstream ss;
         Set<Edge *> passed;
+        Set<Edge *> pathEdges;
+        for (size_t i = 1; i < path.Count(); ++i) {
+            for (Edge *edge: path[i - 1]->edges) {
+                if (edge->GetAdjacent(path[i - 1]) == path[i]) {
+                    pathEdges.Add(edge);
+                    break;
+                }
+            }
+        }
         ss << (directed ? "digraph" : "graph") << " {" << endl;
         for (auto node: nodes) {
-            ss << '"' << node << '"' << "[label=" << node->value;
-            if (nodeWeighted)
-                ss << ", xlabel=" << node->weight;
+            ss << '"' << node << '"' << "[label=\"";
+            Utils::PPrint(ss, node->value);
+            ss << '"';
+            if (nodeWeighted) {
+                ss << ", xlabel=\"";
+                Utils::PPrint(ss, node->weight);
+                ss << '"';
+            }
+            if (path.Contains(node)) {
+                ss << ", penwidth=3";
+            }
             ss << "];" << endl;
             for (auto edge: node->edges) {
                 if (!passed.Contains(edge)) {
-                    ss << '"' << node << '"' << (directed ? "->" : "--") << '"' << edge->GetAdjacent(node) << '"';
-                    if (edgeWeighted)
-                        ss << "[label=\" " << edge->weight << "\"]";
+                    ss << '"' << node << '"' << (directed ? "->" : "--") << '"';
+                    Utils::PPrint(ss, edge->GetAdjacent(node));
+                    ss << '"';
+                    if (edgeWeighted) {
+                        ss << "[label=\" ";
+                        Utils::PPrint(ss, edge->weight);
+                        ss << "\"]";
+                    }
+                    if (pathEdges.Contains(edge)) {
+                        ss << "[penwidth=3]";
+                    }
                     ss << ';' << endl;
                     passed.Add(edge);
                 }
@@ -139,7 +205,7 @@ public:
                     edges->Remove(edge);
                 delete edge;
             }
-            delete node;
         }
+        for (auto node: nodes) delete node;
     }
 };

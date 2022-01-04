@@ -1,6 +1,6 @@
 #include <iostream>
-#include "SquareMatrix.hpp"
-#include "SparseMatrix.hpp"
+//#include "SquareMatrix.hpp"
+//#include "SparseMatrix.hpp"
 #include "Graph.hpp"
 #include "Random.hpp"
 
@@ -8,9 +8,10 @@ using namespace std;
 
 
 int main() {
-    Graph<int> a(10, 20, false, false, true);
-
-    cout << a.GraphvizPrint() << endl;
+    Graph<int> a(5, 10, true, false, true);
+    auto res = a.Dijkstra(0,1);
+    cout << res << endl;
+    cout << a.GraphvizPrint(res) << endl;
 //
 //    Set<size_t *> passed;
 //    for (size_t i = 0; i < 200; ++i) {
