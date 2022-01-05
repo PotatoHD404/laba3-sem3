@@ -3,7 +3,7 @@
   import '../app.postcss';
 
   const site_name = 'PotatoHD website';
-  const description = 'Lab 1 sem 3 that can sort your data';
+  const description = 'Lab 3 sem 3 that can sort your data';
 </script>
 <svelte:head>
   <link rel='icon' href='/favicon.png'>

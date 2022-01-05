@@ -29,11 +29,24 @@ private:
 
         Node(const Node &) = default;
 
-        Edge *AddAdjacent(Node *node) {
-            Edge *edge = new Edge(TWeight(), this, node);
+        Edge *AddAdjacent(Node *other) {
+            Edge *edge = new Edge(TWeight(), this, other);
             edges.Add(edge);
             return edge;
         }
+
+        void RemoveAdjacent(Node *other) {
+            for (size_t i = 0; i < edges.Count(); ++i) {
+                Edge *edge = edges[i];
+                if (edge->GetAdjacent(other) == this) {
+                    edges.RemoveAt(i);
+                    if (!other->IsAdjacent(this))
+                        delete edge;
+                    break;
+                }
+            }
+        }
+
 
         void AddAdjacent(Edge *edge) {
             edges.Add(edge);
@@ -83,7 +96,7 @@ public:
 
     Graph(int count, int num) : Graph(size_t(count), size_t(num)) {}
 
-    explicit Graph(size_t count, size_t num = 0, bool directed = true, bool nodeWeighted = false,
+    explicit Graph(size_t count = 0, size_t num = 0, bool directed = true, bool nodeWeighted = false,
                    bool edgeWeighted = false, bool withCycles = true) :
             nodes(count), directed(directed), nodeWeighted(nodeWeighted), edgeWeighted(edgeWeighted) {
         for (size_t i = 0; i < nodes.Count(); ++i) {
@@ -93,6 +106,8 @@ public:
             }
         }
         size_t maxEdges = directed ? count * count : count * (count - 1) / 2;
+        if (directed && !withCycles)
+            maxEdges -= count;
         if (maxEdges < num)
             throw invalid_argument("Too many nodes to generate");
         for (size_t k = 0; k < num; ++k) {
@@ -100,7 +115,7 @@ public:
 //            if(i!=j)
 //                cout << endl;
             if (!nodes[i]->IsAdjacent(nodes[j]) &&
-                (((!directed || !withCycles) && i != j) || (directed && edgeWeighted))) {
+                (((!directed || !withCycles) && i != j) || (directed && withCycles))) {
                 TWeight rnd = Random<TWeight>();
                 Edge *edge = nodes[i]->AddAdjacent(nodes[j]);
                 edge->weight = rnd;
@@ -110,6 +125,54 @@ public:
                 --k;
             }
         }
+    }
+
+    Graph &AddNode() {
+        return AddNode(nodes.Count());
+    }
+
+    Graph &AddNode(TValue value, TWeight weight = {}) {
+        nodes.Add(new Node(value, weight));
+        return *this;
+    }
+
+    Graph &RemoveNode(size_t i) {
+        if (!directed) {
+            for (auto edge: nodes[i]->edges) {
+                LinkedList<Edge *> *tmp = &edge->GetAdjacent(nodes[i])->edges;
+
+                if (tmp->Contains(edge) && edge->GetAdjacent(nodes[i]) != nodes[i])
+                    tmp->Remove(edge);
+                delete edge;
+            }
+        } else {
+            for (auto node: nodes)
+                node->RemoveAdjacent(nodes[i]);
+        }
+
+        delete nodes.RemoveAt(i);
+        return *this;
+    }
+
+    Graph &AddEdge(size_t i, size_t j, TWeight weight = {}) {
+        if (nodes[i]->IsAdjacent(nodes[j]) == nullptr) {
+            Edge *edge = nodes[i]->AddAdjacent(nodes[j]);
+            edge->weight = weight;
+            if (!directed)
+                nodes[j]->AddAdjacent(edge);
+        }
+
+        return *this;
+    }
+
+    Graph &RemoveEdge(size_t i, size_t j) {
+        if (nodes[i]->IsAdjacent(nodes[j])) {
+            nodes[i]->RemoveAdjacent(nodes[j]);
+            if (!directed)
+                nodes[j]->RemoveAdjacent(nodes[i]);
+        }
+
+        return *this;
     }
 
     ListSequence<size_t> TopologicalSort() {
@@ -146,9 +209,12 @@ public:
                         path.AddFirst(other);
                         do {
                             path.AddFirst(current);
-                            current = parents[current];
+                            if (parents.Contains(current))
+                                current = parents[current];
+                            else
+                                break;
                         } while (current != other);
-                        path.AddFirst(current);
+                        path.AddFirst(other);
 //                        cout << PathToIndexes(path) << endl;
                         cout << this->ToString(true, path, "greys9", 9) << endl;
                         throw std::logic_error("There is loop in this graph, it cant be sorted!");
@@ -169,9 +235,10 @@ public:
         return PathToIndexes(res);
     }
 
-    Graph &Colorize() {
+    size_t Colorize() {
         Set<Node *> passed;
         Stack<Node *> next;
+        size_t chromaticNum = 0;
         for (auto node: nodes)
             node->weight = 1;
 
@@ -190,12 +257,13 @@ public:
                 if (current == other)
                     throw std::logic_error("There is loop in this graph, it cant be colorized!");
                 if (other->weight == current->weight)
-                    ++other->weight;
+                    if (++other->weight > chromaticNum)
+                        chromaticNum = other->weight;
                 if (!passed.Contains(other))
                     next.Push(other);
             }
         }
-        return *this;
+        return chromaticNum;
     }
 
     ListSequence<size_t> Dijkstra(size_t a, size_t b) {
