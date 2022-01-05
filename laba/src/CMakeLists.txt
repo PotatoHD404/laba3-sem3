@@ -10,7 +10,7 @@ set(CMAKE_CXX_FLAGS_RELEASE "-Ofast")
 set(CMAKE_CXX_OUTPUT_EXTENSION_REPLACE 1)
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Emscripten")
-    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../../../static/scripts/)
+    set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../../../scripts/)
     set(CMAKE_GCC_COMPILER "em++")
     set(CMAKE_C_COMPILER "emcc")
 endif ()

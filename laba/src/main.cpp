@@ -86,7 +86,9 @@ void StartUI() {
 
     int choice = 1;
     string tmp;
-    Graph<size_t> *graph;
+    auto graph = new Graph<size_t>();
+//    cout << graph->ToString() << endl;
+//    delete graph;
     while (choice) {
         try {
             choice = Dialog(MSGS1);
@@ -110,7 +112,7 @@ void StartUI() {
                         choice = 1;
                         break;
                     }
-                    cout << "Will this graph be edge-weighted?" << endl;
+                    cout << "Will this graph be edge weighted?" << endl;
                     choice = Dialog(MSGS2);
                     if (choice == 1)
                         weighted = true;

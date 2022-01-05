@@ -105,7 +105,7 @@ public:
         if (directed && !withCycles)
             maxEdges -= count;
         if (maxEdges < num)
-            throw invalid_argument("Too many nodes to generate");
+            throw invalid_argument("Too many edges to generate");
         for (size_t k = 0; k < num; ++k) {
             auto i = Random<size_t>(0, count - 1), j = Random<size_t>(0, count - 1);
 //            if(i!=j)
