@@ -3,7 +3,7 @@
   import Select from '../components/select.svelte';
   import Field from '../components/field.svelte';
   import LabWorker from '../../scripts/service-worker.js?url';
-  // import LabWorker1 from '../../static/scripts/actual-service-worker.js?worker';
+  // import LabWorker1 from '../../static/scripts/actual-tmp-service-worker.js?worker';
   import { onMount } from 'svelte';
 
   let worker;

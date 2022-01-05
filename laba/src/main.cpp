@@ -19,13 +19,8 @@ const char *MSGS1[] = {"0. Quit",
                        "9. Print graph"};
 
 const char *MSGS2[] = {"0. Quit",
-                       "1. ListSequence",
-                       "2. ArraySequence"};
-
-const char *MSGS3[] = {"0. Quit",
-                       "1. QuickSort",
-                       "2. ShellSort",
-                       "3. InsertionSort"};
+                       "1. Yes",
+                       "2. No"};
 
 template<int N>
 int Dialog(const char *(&msgs)[N]) {
@@ -77,74 +72,106 @@ int DialogValue(const string &msg) {
     return choice;
 }
 
+//const char *MSGS1[] = {"0. Quit",
+//                       "1. Init graph",
+//                       "2. Add node to graph",
+//                       "3. Remove node from graph",
+//                       "4. Add edge to graph",
+//                       "5. Remove edge from graph",
+//                       "6. Topological sort",
+//                       "7. Dijkstra",
+//                       "8. Colorize",
+//                       "9. Print graph"};
 void StartUI() {
-    random_device rd;
-    mt19937::result_type seed = rd() ^ (
-            (mt19937::result_type)
-                    chrono::duration_cast<std::chrono::seconds>(
-                            chrono::system_clock::now().time_since_epoch()
-                    ).count() +
-            (mt19937::result_type)
-                    chrono::duration_cast<chrono::microseconds>(
-                            chrono::high_resolution_clock::now().time_since_epoch()
-                    ).count());
-    mt19937 rng(seed);
+
     int choice = 1;
     string tmp;
-    unique_ptr<Enumerable < T>>
-    seq = make_unique<ArraySequence<T>>();
+    Graph<size_t> *graph;
     while (choice) {
         try {
             choice = Dialog(MSGS1);
-            T value1, value2;
-            int count;
+            size_t value1, value2;
+            bool directed, weighted;
+            ListSequence<size_t> path;
             switch (choice) {
-                case 0:
+                case 0: {
                     break;
+                }
                 case 1: {
+                    value1 = DialogValue("Input nodes count");
+                    value2 = DialogValue("Input edges count");
+                    cout << "Will this graph be directed?" << endl;
                     choice = Dialog(MSGS2);
                     if (choice == 1)
-                        seq = make_unique<ListSequence<T>>();
+                        directed = true;
                     else if (choice == 2)
-                        seq = make_unique<ArraySequence<T>>();
-                    choice = 1;
+                        directed = false;
+                    else {
+                        choice = 1;
+                        break;
+                    }
+                    cout << "Will this graph be edge-weighted?" << endl;
+                    choice = Dialog(MSGS2);
+                    if (choice == 1)
+                        weighted = true;
+                    else if (choice == 2)
+                        weighted = false;
+                    else {
+                        choice = 1;
+                        break;
+                    }
+                    delete graph;
+                    graph = new Graph<size_t>{value1, value2, directed,
+                                              false, weighted, false};
                     break;
                 }
 
                 case 2: {
-                    seq->Add(InputValue<T>());
+                    graph->AddNode();
                     break;
                 }
 
-                case 3:
-                    seq->Remove(InputValue<T>());
+                case 3: {
+                    graph->RemoveNode(DialogValue("Input node index"));
                     break;
+                }
 
-                case 4:
-                    cout << "ISequence: " << *seq << endl;
+                case 4: {
+                    value1 = DialogValue("Input first node index");
+                    value2 = DialogValue("Input second node index");
+                    graph->AddEdge(value1, value2);
                     break;
-                case 5:
-                    count = DialogValue("Input items count");
-                    for (int i = 0; i < count; ++i) {
-                        seq->Add(GenRandom<T>(rng));
-                    }
+                }
+                case 5: {
+                    value1 = DialogValue("Input first node index");
+                    value2 = DialogValue("Input second node index");
+                    graph->RemoveEdge(value1, value2);
                     break;
-                case 6:
-                    choice = Dialog(MSGS3);
-                    if (choice) {
-                        ISort<T> *sort = &QuickSort<T>;
-                        if (choice == 2)
-                            sort = &ShellSort<T>;
-                        else if (choice == 3)
-                            sort = &InsertionSort<T>;
-                        auto t1 = high_resolution_clock::now();
-                        seq->Sort(*sort);
-                        auto t2 = high_resolution_clock::now();
-                        duration<double, milli> ms_double = t2 - t1;
-                        cout << "Result: " << ms_double.count() << "ms" << endl;
-                    }
-                    choice = 1;
+                }
+                case 6: {
+                    cout << "Topological order is" << graph->TopologicalSort() << endl;
                     break;
+                }
+                case 7: {
+                    value1 = DialogValue("Input first node index");
+                    value2 = DialogValue("Input second node index");
+                    path = graph->Dijkstra(value1, value2);
+                    if (path.Count() != 0)
+                        cout << "Path is = " << path << endl;
+                    else
+                        cout << "The node is unreachable" << endl;
+                    cout << graph->ToString(false, path) << endl;
+                    break;
+                }
+                case 8: {
+                    cout << "Chromatic num = " << graph->Colorize() << endl;
+                    cout << graph->ToString(true) << endl;
+                    break;
+                }
+                case 9: {
+                    cout << graph->ToString() << endl;
+                    break;
+                }
                 default: {
                     cout << "How did you end up here?" << endl;
                     break;
@@ -155,6 +182,7 @@ void StartUI() {
             cout << "An error has occurred: " << e.what() << "\nTry again!\n";
         }
     }
+    delete graph;
 }
 
 

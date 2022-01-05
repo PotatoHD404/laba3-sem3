@@ -91,20 +91,16 @@ public:
 
 //    Iter<T> begin() const override {}
 
-    Graph() = default;
+//    Graph() = default;
 
 
     Graph(int count, int num) : Graph(size_t(count), size_t(num)) {}
 
     explicit Graph(size_t count = 0, size_t num = 0, bool directed = true, bool nodeWeighted = false,
                    bool edgeWeighted = false, bool withCycles = true) :
-            nodes(count), directed(directed), nodeWeighted(nodeWeighted), edgeWeighted(edgeWeighted) {
-        for (size_t i = 0; i < nodes.Count(); ++i) {
-            nodes[i] = new Node();
-            if constexpr(std::is_same<TValue, int>::value) {
-                nodes[i]->value = i;
-            }
-        }
+            nodes(), directed(directed), nodeWeighted(nodeWeighted), edgeWeighted(edgeWeighted) {
+        for (size_t i = 0; i < count; ++i)
+            this->AddNode();
         size_t maxEdges = directed ? count * count : count * (count - 1) / 2;
         if (directed && !withCycles)
             maxEdges -= count;
@@ -126,6 +122,7 @@ public:
             }
         }
     }
+
 
     Graph &AddNode() {
         return AddNode(nodes.Count());
@@ -155,7 +152,7 @@ public:
     }
 
     Graph &AddEdge(size_t i, size_t j, TWeight weight = {}) {
-        if (nodes[i]->IsAdjacent(nodes[j]) == nullptr) {
+        if (!nodes[i]->IsAdjacent(nodes[j])) {
             Edge *edge = nodes[i]->AddAdjacent(nodes[j]);
             edge->weight = weight;
             if (!directed)
@@ -181,6 +178,8 @@ public:
             gray = 5,
             black = 9
         };
+        if (!directed)
+            throw std::logic_error("Undirected graph can't be topologically sorted!");
         for (auto node: nodes)
             node->weight = white;
         ListSequence<Node *> res;
@@ -239,6 +238,8 @@ public:
         Set<Node *> passed;
         Stack<Node *> next;
         size_t chromaticNum = 0;
+        if (directed)
+            throw std::logic_error("Directed graph can't be colorized!");
         for (auto node: nodes)
             node->weight = 1;
 
