@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<body>
+<script src="https://d3js.org/d3.v5.min.js"></script>
+<script src="https://unpkg.com/viz.js@1.8.2/viz.js" type="javascript/worker"></script>
+<script src="https://unpkg.com/d3-graphviz@2.6.1/build/d3-graphviz.min.js"></script>
+<div id="graph1" style="text-align: center;"></div>
+<hr/>
+<div id="graph2" style="text-align: center;"></div>
+<hr/>
+<div id="graph3" style="text-align: center;"></div>
+<hr/>
+<div id="graph4" style="text-align: center;"></div>
+<hr/>
+<div id="graph" style="text-align: center;"></div>
+<script>
+
+  let dotIndex = 0;
+
+
+
+  const dots = [
+
+    `digraph  {
+            graph [bgcolor=transparent];
+            rankdir=LR;
+            graph [splines=ortho];
+            concentrate = true;
+            node [shape=record, style="filled", fontname="verdana"];
+            a [label=< <FONT POINT-SIZE="11">label</FONT> >, xlabel="leaf \\n 10.1.1.2", fillcolor="tomato"];
+            b [height=2, label=< <FONT POINT-SIZE="11">label</FONT>|<FONT POINT-SIZE="11">label</FONT>|<FONT POINT-SIZE="11">label</FONT> >, xlabel=<LB  >, fillcolor="yellow"];
+            c [label=< <FONT POINT-SIZE="11">label</FONT> >, xlabel=<nh1  >,fillcolor="orange"];
+            d [label=< <FONT POINT-SIZE="11">label</FONT> >, xlabel=<nh2  >,fillcolor="orange"];
+            e [label=< <FONT POINT-SIZE="11">label</FONT> >, xlabel=<nh3  >,fillcolor="orange"];
+            a -> b [arrowhead = dot, dir=both, arrowtail=dot, label="      "];
+            b -> c [label="      "];
+            b -> d [label="      "];
+            b -> e [label="      "];
+
+        }`
+    ,
+
+    `digraph  {
+            graph [bgcolor=transparent];
+            rankdir=LR;
+            graph [splines=ortho];
+            node [shape=record, style="filled", fontname="verdana"];
+            a [label=< <FONT POINT-SIZE="11">label</FONT> >, xlabel="leaf \\n 10.1.1.2", fillcolor="tomato"];
+            b [height=1, label=< <FONT POINT-SIZE="11">label</FONT>|<FONT POINT-SIZE="11">label</FONT> >, xlabel=<LB  >, fillcolor="yellow"];
+            c [label=< <FONT POINT-SIZE="11">label</FONT> >, xlabel=<nh1  >, fillcolor="orange"];
+            d [label=< <FONT POINT-SIZE="11">label</FONT> >, xlabel=<nh2  >,fillcolor="orange"];
+            a -> b [arrowhead = dot, dir=both, arrowtail=dot, label="      "];
+            b -> c [label="      "];
+            b -> d [label="      "];
+        }`
+    ,
+
+    `digraph  {
+            graph [bgcolor=transparent];
+            rankdir=LR;
+            graph [splines=ortho];
+            node [shape=record, style="filled", fontname="verdana"];
+            a [label=< <FONT POINT-SIZE="11">label</FONT> >, xlabel="leaf \\n 10.1.1.2", fillcolor="tomato"];
+            b [height=1, label=< <FONT POINT-SIZE="11">label</FONT> >, xlabel=<LB  >, fillcolor="yellow"];
+            c [label=< <FONT POINT-SIZE="11">label</FONT> >, xlabel=<nh1  >,fillcolor="orange"];
+            a -> b [arrowhead = dot, dir=both, arrowtail=dot, label="      "];
+            b -> c [label="      "];
+        }`
+    ,
+
+    `digraph  {
+            graph [bgcolor=transparent];
+            rankdir=LR;
+            graph [splines=ortho];
+            node [shape=record, style="filled", fontname="verdana"];
+            a [label=< <FONT POINT-SIZE="11">label</FONT> >, xlabel="leaf \\n 10.1.1.2", fillcolor="tomato"];
+            c [label=< <FONT POINT-SIZE="11">label</FONT> >, xlabel=<nh1  >,fillcolor="orange"];
+            a -> c [label="      "];
+        }`
+
+  ]
+
+
+
+  var graphviz1 = d3.select("#graph1")
+    .graphviz()
+    .on("initEnd", () => {
+      graphviz1
+        .renderDot(dots[0])
+    })
+
+  var graphviz2 = d3.select("#graph2")
+    .graphviz()
+    .on("initEnd", () => {
+      graphviz2
+        .renderDot(dots[1])
+    })
+
+  var graphviz3 = d3.select("#graph3")
+    .graphviz()
+    .on("initEnd", () => {
+      graphviz3
+        .renderDot(dots[2])
+    })
+
+  var graphviz4 = d3.select("#graph4")
+    .graphviz()
+    .on("initEnd", () => {
+      graphviz4
+        .renderDot(dots[3])
+    })
+  var graphviz = d3.select("#graph").graphviz()
+    .transition(function () {
+      return d3.transition("main")
+        .ease(d3.easeLinear)
+        .delay(500)
+        .duration(1500);
+    })
+    .logEvents(true)
+    .on("initEnd", render);
+
+  function render() {
+    var dot = dots[dotIndex];
+    graphviz
+      .renderDot(dot)
+      .on("end", function () {
+        dotIndex = (dotIndex + 1) % dots.length;
+        render();
+      });
+  }
+</script>
