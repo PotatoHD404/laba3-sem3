@@ -1,11 +1,26 @@
+<!--<script type="module">-->
+
+<!--  import dot2svg from '@aduh95/viz.js/async';-->
+<!--  // import * as d3 from "https://cdn.skypack.dev/d3@7";-->
+
+<!--  // const div = selectAll("div");-->
+
+<!--</script>-->
 <script>
   import Input from '../components/input.svelte';
   import Select from '../components/select.svelte';
   import Field from '../components/field.svelte';
   import Button from '../components/button.svelte';
+  import Canvas from '../components/canvas.svelte';
+  import Viz from 'viz.js';
+
+  import { Module, render } from 'viz.js/full.render.js';
+
+  // const vizRenderStringSync = import('@aduh95/viz.js/sync');
   // import LabWorker from '../../scripts/actual-service-worker.js?url';
   import LabWorker1 from '../../scripts/actual-service-worker.js?worker';
   import { onMount } from 'svelte';
+
 
   let worker;
   let ok = false;
@@ -13,7 +28,36 @@
   let type_selected = false;
   let sequence = '';
   let result = '';
-  let inputValue = ['', '', 'True', 'True'];
+  let inputValue = ['', '', 'True', 'True', '', ''];
+  let dots = [];
+  let svg = '';
+  let text = '';
+  let viz = new Viz({ Module, render });
+
+  function render_graph(dot) {
+    viz.renderString(dot)
+      .then(result => {
+        svg = result;
+      })
+      .catch(error => {
+        // Create a new Viz instance (@see Caveats page for more info)
+        viz = new Viz({ Module, render });
+
+        // Possibly display the error
+        console.error(error);
+      });
+  }
+
+  function queue() {
+    if (dots.length !== 0) {
+      console.log();
+      const el = dots.shift();
+      render_graph(el);
+
+    }
+    // console.log(dots.length);
+  }
+
   onMount(async () => {
     // worker = new Worker(LabWorker);
     worker = new LabWorker1();
@@ -24,6 +68,10 @@
     };
     worker.postMessage('init');
     ok = true;
+    setInterval(queue, 1000);
+
+
+    // const graphviz1 = graphviz('#graph').renderDot(dots[0]);
     // console.log('initialized');
   });
 
@@ -40,10 +88,12 @@
 
     if (ok) {
       ok = false;
+      let message;
       switch (input) {
+
         case 'init':
           // console.log(inputValue);
-          let message = '1' + '\n';
+          message = '1' + '\n';
           if (inputValue[0] === '')
             message += '0';
           else
@@ -68,11 +118,10 @@
           worker.postMessage(message);
           break;
         case 'colorize':
-          // console.log('2' + '\n' + choice + '\n' + '4');
-          worker.postMessage('8' + '\n' + '9' + '\n');
+          worker.postMessage('8' + '\n');
           break;
         case 'top':
-          worker.postMessage('6' + '\n' + '9' + '\n');
+          worker.postMessage('6' + '\n');
           break;
         case 'add':
           worker.postMessage('2' + '\n' + '9' + '\n');
@@ -81,6 +130,19 @@
           if (choice !== '')
             worker.postMessage('2' + '\n' + choice + '\n');
           break;
+        case 'dijkstra':
+          message = '7' + '\n';
+          if (inputValue[4] === '')
+            message += '0';
+          else
+            message += inputValue[4];
+          message += '\n';
+          if (inputValue[5] === '')
+            message += '1';
+          else
+            message += inputValue[5];
+          worker.postMessage(message);
+          break;
       }
     }
   }
@@ -88,10 +150,25 @@
   function print(data) {
     ok = true;
     // console.log(data);
-    if (data.includes('graph {'))
-      sequence = data.split('Sequence: ')[1];
-    else if (data.includes('Result: '))
-      result = data.split('Result: ')[1];
+    text += data;
+    if (text.includes('graph {') && text.includes('}')) {
+      if (text.includes('digraph {'))
+        text = 'digraph {' + text.split('digraph {')[1];
+      else
+        text = 'graph {' + text.split('graph {')[1];
+      // console.log(text);
+      text.split('}').forEach((el) => {
+        if (el.includes('graph {'))
+          dots.push(el + '}');
+        // console.log(dots);
+
+      });
+      text = '';
+    }
+    if (data.includes('Chromatic num = '))
+      result = data.split('Chromatic num = ')[1];
+    else if (data.includes('Topological order is'))
+      result = data.split('Topological order is')[1];
 
     consoleText += data + '\r\n';
     let textarea = document.getElementById('consoleOutput');
@@ -129,14 +206,18 @@
         <Select text='Edge weighted' command={()=>{Command('init');}}
                 button_text='Init' options={['True', 'False']} bind:choice={inputValue[3]} />
         <div class='flex justify-center flex-wrap md:w-2/3 w-full'>
-          <Button button_text='Colorize' command={(choice)=>{Command('sort',choice);}} />
-          <Button button_text='Topological sort' command={(choice)=>{Command('sort',choice);}} />
-          <Button button_text='Add node' command={(choice)=>{Command('sort',choice);}} />
+          <Button button_text='Colorize' command={()=>{Command('colorize');}} />
+          <Button button_text='Topological sort' command={(choice)=>{Command('top',choice);}} />
+          <Button button_text='Add node' command={(choice)=>{Command('add',choice);}} />
         </div>
+        <Input text='From node index' command={(choice)=>{Command('remove',choice);}}
+               bind:choice={inputValue[4]} />
+        <Input text='To node index' command={()=>{Command('dijkstra');}}
+               button_text='Dijkstra' bind:choice={inputValue[5]} />
         <Input text='Node index' command={(choice)=>{Command('input',choice);}}
                button_text='Remove' />
         <Field label_text='Result' text={result} />
-        <Field label_text='Graph' text={sequence} />
+        <Canvas label_text='Graph' bind:svg={svg} />
       </div>
     </div>
 

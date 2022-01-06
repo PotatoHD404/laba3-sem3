@@ -151,7 +151,14 @@ void StartUI() {
                     break;
                 }
                 case 6: {
-                    cout << "Topological order is" << graph->TopologicalSort() << endl;
+                    try {
+                        path = graph->TopologicalSort();
+                        cout << "Topological order is " << path << endl;
+                    }
+                    catch (const std::exception &e) {
+                        cout << "Topological order is " << e.what() << endl;
+                    }
+
                     break;
                 }
                 case 7: {
