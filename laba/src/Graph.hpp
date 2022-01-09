@@ -152,7 +152,7 @@ public:
     }
 
     Graph &AddEdge(size_t i, size_t j, TWeight weight = {}) {
-        while (i >= nodes.Count() || j>= nodes.Count())
+        while (i >= nodes.Count() || j >= nodes.Count())
             AddNode();
         if (!nodes[i]->IsAdjacent(nodes[j])) {
             Edge *edge = nodes[i]->AddAdjacent(nodes[j]);
@@ -352,7 +352,7 @@ private:
         ss << (directed ? "digraph" : "graph") << " {" << endl;
         ss << "node [style=filled];" << endl;
         for (auto node: nodes) {
-            ss << '"' << node << '"' << "[label=\"";
+            ss << '"' << node->value << '"' << "[label=\"";
             Utils::PPrint(ss, node->value);
             ss << '"';
             if (colored) {
@@ -374,8 +374,8 @@ private:
             ss << "];" << endl;
             for (auto edge: node->edges) {
                 if (!passed.Contains(edge)) {
-                    ss << '"' << node << '"' << (directed ? "->" : "--") << '"';
-                    Utils::PPrint(ss, edge->GetAdjacent(node));
+                    ss << '"' << node->value << '"' << (directed ? "->" : "--") << '"';
+                    Utils::PPrint(ss, edge->GetAdjacent(node)->value);
                     ss << '"';
                     if (edgeWeighted) {
                         ss << "[label=\" ";

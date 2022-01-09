@@ -72,16 +72,6 @@ int DialogValue(const string &msg) {
     return choice;
 }
 
-//const char *MSGS1[] = {"0. Quit",
-//                       "1. Init graph",
-//                       "2. Add node to graph",
-//                       "3. Remove node from graph",
-//                       "4. Add edge to graph",
-//                       "5. Remove edge from graph",
-//                       "6. Topological sort",
-//                       "7. Dijkstra",
-//                       "8. Colorize",
-//                       "9. Print graph"};
 void StartUI() {
 
     int choice = 1;
@@ -206,21 +196,23 @@ int main() {
 //    cout << a.ToString()<< endl;
 
 //    cout << a.ToString(false) << endl;
-//    Graph<int> graph{0, 0, false};
-//
-//
+//    Graph<int> graph{0, 0, true};
+//////
+//////
 //    graph.AddEdge(2, 4, 1);
 //    graph.AddEdge(2, 3, 5);
 //    graph.AddEdge(4, 3, 3);
 //    graph.AddEdge(2, 5, 10);
 //    graph.AddEdge(3, 5, 10);
 //    graph.AddEdge(5, 0, 1);
+//    graph.RemoveEdge(5, 0);
+//    cout << graph.ToString() << endl;
 //    auto path = graph.Dijkstra(0, 5);
 //    cout << graph.ToString() << endl;
 
 //    cout << res << endl;
 
-//    StartUI();
+    StartUI();
     return 0;
 }
 
