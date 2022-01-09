@@ -169,6 +169,8 @@
       result = data.split('Chromatic num = ')[1];
     else if (data.includes('Topological order is'))
       result = data.split('Topological order is')[1];
+    else if (data.includes('The node is unreachable'))
+      result = 'The node is unreachable'
 
     consoleText += data + '\r\n';
     let textarea = document.getElementById('consoleOutput');
@@ -208,14 +210,14 @@
         <div class='flex justify-center flex-wrap md:w-2/3 w-full'>
           <Button button_text='Colorize' command={()=>{Command('colorize');}} />
           <Button button_text='Topological sort' command={(choice)=>{Command('top',choice);}} />
-          <Button button_text='Add node' command={(choice)=>{Command('add',choice);}} />
+<!--          <Button button_text='Add node' command={(choice)=>{Command('add',choice);}} />-->
         </div>
         <Input text='From node index' command={(choice)=>{Command('remove',choice);}}
                bind:choice={inputValue[4]} />
         <Input text='To node index' command={()=>{Command('dijkstra');}}
                button_text='Dijkstra' bind:choice={inputValue[5]} />
-        <Input text='Node index' command={(choice)=>{Command('input',choice);}}
-               button_text='Remove' />
+<!--        <Input text='Node index' command={(choice)=>{Command('input',choice);}}-->
+<!--               button_text='Remove' />-->
         <Field label_text='Result' text={result} />
         <Canvas label_text='Graph' bind:svg={svg} />
       </div>

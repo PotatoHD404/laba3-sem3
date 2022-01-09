@@ -152,6 +152,8 @@ public:
     }
 
     Graph &AddEdge(size_t i, size_t j, TWeight weight = {}) {
+        while (i >= nodes.Count() || j>= nodes.Count())
+            AddNode();
         if (!nodes[i]->IsAdjacent(nodes[j])) {
             Edge *edge = nodes[i]->AddAdjacent(nodes[j]);
             edge->weight = weight;

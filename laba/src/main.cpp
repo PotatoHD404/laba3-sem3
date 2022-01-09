@@ -206,7 +206,21 @@ int main() {
 //    cout << a.ToString()<< endl;
 
 //    cout << a.ToString(false) << endl;
-    StartUI();
+//    Graph<int> graph{0, 0, false};
+//
+//
+//    graph.AddEdge(2, 4, 1);
+//    graph.AddEdge(2, 3, 5);
+//    graph.AddEdge(4, 3, 3);
+//    graph.AddEdge(2, 5, 10);
+//    graph.AddEdge(3, 5, 10);
+//    graph.AddEdge(5, 0, 1);
+//    auto path = graph.Dijkstra(0, 5);
+//    cout << graph.ToString() << endl;
+
+//    cout << res << endl;
+
+//    StartUI();
     return 0;
 }
 
